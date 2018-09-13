@@ -5,19 +5,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using CompanyNetCore.Model;
 using CompanyNetCore.Repo;
-using Dapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyNetCore.Controllers
 {
-    [Route("api/Company")]
-    public class CompanyController : ControllerBase
+    [Route("api/Empolyee")]
+    public class EmployeeController : ControllerBase
     {
-        CompanyRepo CR = new CompanyRepo();
+        EmployeeRepo ER = new EmployeeRepo();
         [HttpGet]
         public IActionResult Get()
         {
-            var result = CR.Get();
+            var result = ER.Get();
             if (result == null)
                 return NoContent();
             return Ok(result);
@@ -26,25 +25,25 @@ namespace CompanyNetCore.Controllers
         [HttpGet("{Id}")]
         public IActionResult GetById(int Id)
         {
-            var result = CR.GetById(Id);
+            var result = ER.GetById(Id);
             if (result == null)
                 return NoContent();
             return Ok(result);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody]Company company)
+        public IActionResult Add([FromBody]Employee employee)
         {
-            var result = CR.AddOrUpdate(company.Name, company.Business, company.Id);
+            var result = ER.AddOrUpdate(employee.Vorname, employee.Name, employee.Salary, employee.Gender, employee.Id);
             if (result == null)
                 return NoContent();
             return Ok(result);
         }
 
         [HttpPut]
-        public IActionResult Update([FromBody]Company company)
+        public IActionResult Update([FromBody]Employee employee)
         {
-            var result = CR.AddOrUpdate(company.Name, company.Business, company.Id);
+            var result = ER.AddOrUpdate(employee.Vorname, employee.Name, employee.Salary, employee.Gender, employee.Id);
             if (result == null)
                 return NoContent();
             return Ok(result);
@@ -52,11 +51,10 @@ namespace CompanyNetCore.Controllers
         [HttpDelete("{Id}")]
         public IActionResult Delete(int Id)
         {
-            var result = CR.Delete(Id);
-            if (result == null)
-                return NoContent();
-            return Ok(result);
-            
+            var result = ER.Delete(Id);
+            var resval = result == null ? (IActionResult) NoContent() : Ok(result); 
+            return resval;
+
         }
     }
 }

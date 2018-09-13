@@ -13,7 +13,7 @@ namespace CompanyNetCore.Repo
     public class CompanyRepo
     {
 
-        public List<Company> Read()
+        public List<Company> Get()
         {
             using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
             {
@@ -23,12 +23,12 @@ namespace CompanyNetCore.Repo
                 return companyList;
             }
         }
-        public Company ReadById(int Id)
+        public Company GetById(int Id)
         {
             using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
             {
                 conn.Open();
-                string companySelect = "SELECT Id,Name,Business FROM viCompany  WHERE Id = @Id;";
+                string companySelect = "SELECT Id,Name,Business,Country,City,Street FROM viCompany  WHERE Id = @Id;";
                 var param = new DynamicParameters();
                 param.Add("@Id", Id);
                 var company = conn.QueryFirstOrDefault<Company>(companySelect, param);
