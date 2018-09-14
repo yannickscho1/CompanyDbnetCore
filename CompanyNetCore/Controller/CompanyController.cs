@@ -7,56 +7,152 @@ using CompanyNetCore.Model;
 using CompanyNetCore.Repo;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace CompanyNetCore.Controllers
 {
     [Route("api/Company")]
     public class CompanyController : ControllerBase
     {
-        CompanyRepo CR = new CompanyRepo();
+        CompanyRepo CR = CompanyRepo.GetInstance();
+
         [HttpGet]
         public IActionResult Get()
         {
-            var result = CR.Get();
-            if (result == null)
-                return NoContent();
-            return Ok(result);
+            List<Company> retVal;
+            try
+            {
+                retVal = CR.Read();
+            }
+            catch (Helper.RepoException ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.OK:
+                        return StatusCode(StatusCodes.Status200OK);
+                    case Helper.UpdateResultType.SQLERROR:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
+            }
+            if (retVal == null)
+                return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status200OK, retVal);
         }
 
         [HttpGet("{Id}")]
         public IActionResult GetById(int Id)
         {
-            var result = CR.GetById(Id);
-            if (result == null)
-                return NoContent();
-            return Ok(result);
+            Company retVal;
+            try
+            {
+                retVal = CR.ReadById(Id);
+            }
+            catch (Helper.RepoException ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.OK:
+                        return StatusCode(StatusCodes.Status200OK);
+                    case Helper.UpdateResultType.SQLERROR:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    default:
+                        break;
+                }
+                return StatusCode(StatusCodes.Status204NoContent);
+                throw;
+            }
+            if (retVal == null)
+                return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status200OK, retVal);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody]Company company)
+        public IActionResult Add([FromBody]Model.dto.CompanyDto company)
         {
-            var result = CR.AddOrUpdate(company.Name, company.Business, company.Id);
-            if (result == null)
-                return NoContent();
-            return Ok(result);
+            Company retVal;
+            try
+            {
+                retVal = CR.Create(company);
+            }
+            catch (Helper.RepoException ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.OK:
+                        return StatusCode(StatusCodes.Status200OK);
+                    case Helper.UpdateResultType.SQLERROR:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    case Helper.UpdateResultType.INVALIDEARGUMENT:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    case Helper.UpdateResultType.ERROR:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
+            }
+            if (retVal == null)
+                return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status200OK, retVal);
         }
 
-        [HttpPut]
-        public IActionResult Update([FromBody]Company company)
+        [HttpPut("{id}")]
+        public IActionResult Update([FromBody]Model.dto.CompanyDto company, int id)
         {
-            var result = CR.AddOrUpdate(company.Name, company.Business, company.Id);
-            if (result == null)
-                return NoContent();
-            return Ok(result);
+            Company retVal;
+            try
+            {
+                retVal = CR.Update(company, id);
+            }
+            catch (Helper.RepoException ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.SQLERROR:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    case Helper.UpdateResultType.ERROR:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
+            }
+            if (retVal == null)
+                return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status200OK, retVal);
         }
-        [HttpDelete("{Id}")]
+        [HttpDelete("{id}")]
         public IActionResult Delete(int Id)
         {
-            var result = CR.Delete(Id);
-            if (result == null)
-                return NoContent();
-            return Ok(result);
-            
+            Company retVal;
+            try
+            {
+                retVal = CR.Delete(Id);
+            }
+            catch (Helper.RepoException ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.SQLERROR:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    case Helper.UpdateResultType.ERROR:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
+            }
+            if (retVal == null)
+                return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status200OK, retVal);
+
         }
     }
 }

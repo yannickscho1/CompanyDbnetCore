@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyNetCore.Controllers
 {
-    [Route("api/Empolyee")]
+    [Route("api/Employee")]
     public class EmployeeController : ControllerBase
     {
         EmployeeRepo ER = new EmployeeRepo();
@@ -31,30 +31,30 @@ namespace CompanyNetCore.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
-        public IActionResult Add([FromBody]Employee employee)
-        {
-            var result = ER.AddOrUpdate(employee.Vorname, employee.Name, employee.Salary, employee.Gender, employee.Id);
-            if (result == null)
-                return NoContent();
-            return Ok(result);
-        }
+        //[HttpPost]
+        //public IActionResult Add([FromBody]Employee employee)
+        //{
+        //    var result = ER.AddOrUpdate(employee.Vorname, employee.Name, employee.Salary, employee.Gender, employee.Id);
+        //    if (result == null)
+        //        return NoContent();
+        //    return Ok(result);
+        //}
 
-        [HttpPut]
-        public IActionResult Update([FromBody]Employee employee)
-        {
-            var result = ER.AddOrUpdate(employee.Vorname, employee.Name, employee.Salary, employee.Gender, employee.Id);
-            if (result == null)
-                return NoContent();
-            return Ok(result);
-        }
-        [HttpDelete("{Id}")]
-        public IActionResult Delete(int Id)
-        {
-            var result = ER.Delete(Id);
-            var resval = result == null ? (IActionResult) NoContent() : Ok(result); 
-            return resval;
+        //[HttpPut]
+        //public IActionResult Update([FromBody]Employee employee)
+        //{
+        //    var result = ER.AddOrUpdate(employee.Vorname, employee.Name, employee.Salary, employee.Gender, employee.Id);
+        //    if (result == null)
+        //        return NoContent();
+        //    return Ok(result);
+        //}
+        //[HttpDelete]
+        //public IActionResult Delete(int Id)
+        //{
+        //    var result = ER.Delete(Id);
+        //    var resval = result == null ? (IActionResult) NoContent() : Ok(result); 
+        //    return resval;
 
-        }
+        //}
     }
 }

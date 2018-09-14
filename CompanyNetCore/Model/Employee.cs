@@ -11,6 +11,6 @@ namespace CompanyNetCore.Model
         public string Vorname { get; set; }
         public string Name { get; set; }
         public decimal Salary { get; set; }
-        public int Gender { get; set; }
+        public string Gender { get; set; }
     }
 }
