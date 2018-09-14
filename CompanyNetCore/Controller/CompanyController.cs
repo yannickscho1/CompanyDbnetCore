@@ -8,6 +8,7 @@ using CompanyNetCore.Repo;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using CompanyNetCore.Helper;
 
 namespace CompanyNetCore.Controllers
 {
@@ -24,13 +25,13 @@ namespace CompanyNetCore.Controllers
             {
                 retVal = CR.Read();
             }
-            catch (Helper.RepoException ex)
+            catch (RepoException<ReadResultType> ex)
             {
                 switch (ex.Type)
                 {
-                    case Helper.UpdateResultType.OK:
+                    case ReadResultType.OK:
                         return StatusCode(StatusCodes.Status200OK);
-                    case Helper.UpdateResultType.SQLERROR:
+                    case ReadResultType.SQLERROR:
                         return StatusCode(StatusCodes.Status409Conflict);
                     default:
                         break;
@@ -51,13 +52,13 @@ namespace CompanyNetCore.Controllers
             {
                 retVal = CR.ReadById(Id);
             }
-            catch (Helper.RepoException ex)
+            catch (Helper.RepoException<ReadResultType> ex)
             {
                 switch (ex.Type)
                 {
-                    case Helper.UpdateResultType.OK:
+                    case ReadResultType.OK:
                         return StatusCode(StatusCodes.Status200OK);
-                    case Helper.UpdateResultType.SQLERROR:
+                    case ReadResultType.SQLERROR:
                         return StatusCode(StatusCodes.Status409Conflict);
                     default:
                         break;
@@ -78,17 +79,17 @@ namespace CompanyNetCore.Controllers
             {
                 retVal = CR.Create(company);
             }
-            catch (Helper.RepoException ex)
+            catch (Helper.RepoException<CreateResultType> ex)
             {
                 switch (ex.Type)
                 {
-                    case Helper.UpdateResultType.OK:
+                    case CreateResultType.OK:
                         return StatusCode(StatusCodes.Status200OK);
-                    case Helper.UpdateResultType.SQLERROR:
+                    case CreateResultType.SQLERROR:
                         return StatusCode(StatusCodes.Status409Conflict);
-                    case Helper.UpdateResultType.INVALIDEARGUMENT:
+                    case CreateResultType.INVALIDEARGUMENT:
                         return StatusCode(StatusCodes.Status409Conflict);
-                    case Helper.UpdateResultType.ERROR:
+                    case CreateResultType.ERROR:
                         return StatusCode(StatusCodes.Status409Conflict);
                     default:
                         break;
@@ -109,7 +110,7 @@ namespace CompanyNetCore.Controllers
             {
                 retVal = CR.Update(company, id);
             }
-            catch (Helper.RepoException ex)
+            catch (Helper.RepoException<UpdateResultType> ex)
             {
                 switch (ex.Type)
                 {
@@ -135,13 +136,13 @@ namespace CompanyNetCore.Controllers
             {
                 retVal = CR.Delete(Id);
             }
-            catch (Helper.RepoException ex)
+            catch (Helper.RepoException<DeleteResultType> ex)
             {
                 switch (ex.Type)
                 {
-                    case Helper.UpdateResultType.SQLERROR:
+                    case DeleteResultType.SQLERROR:
                         return StatusCode(StatusCodes.Status409Conflict);
-                    case Helper.UpdateResultType.ERROR:
+                    case DeleteResultType.ERROR:
                         return StatusCode(StatusCodes.Status409Conflict);
                     default:
                         break;

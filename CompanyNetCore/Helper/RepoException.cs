@@ -6,22 +6,22 @@ using System.Threading.Tasks;
 namespace CompanyNetCore.Helper
 {
 
-    [Serializable]
+    //[Serializable]
     // 1. Möglichkeit
-    public class RepoException : Exception
-    {
-        public UpdateResultType Type { get; set; }
-        public RepoException(UpdateResultType type) {
-            Type = type;
-        }
-        public RepoException(string message, UpdateResultType type) : base(message) {
-            Type = type;
-        }
-        public RepoException(string message, Exception inner) : base(message, inner) { }
-        protected RepoException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
-    }
+    //public class RepoException : Exception
+    //{
+    //    public UpdateResultType Type { get; set; }
+    //    public RepoException(UpdateResultType type) {
+    //        Type = type;
+    //    }
+    //    public RepoException(string message, UpdateResultType type) : base(message) {
+    //        Type = type;
+    //    }
+    //    public RepoException(string message, Exception inner) : base(message, inner) { }
+    //    protected RepoException(
+    //      System.Runtime.Serialization.SerializationInfo info,
+    //      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+    //}
     // 2. Möglichkeit
     public class RepoException<T> : Exception
     {
@@ -42,11 +42,34 @@ namespace CompanyNetCore.Helper
 
     public enum UpdateResultType
     {
-        OK =1,
+        OK,
         SQLERROR,
         NOTFOUND,
         INVALIDEARGUMENT,
         ERROR
-   
+    }
+    public enum ReadResultType
+    {
+        OK,
+        SQLERROR,
+        NOTFOUND,
+        INVALIDEARGUMENT,
+        ERROR
+    }
+    public enum CreateResultType
+    {
+        OK,
+        SQLERROR,
+        NOTFOUND,
+        INVALIDEARGUMENT,
+        ERROR
+    }
+    public enum DeleteResultType
+    {
+        OK,
+        SQLERROR,
+        NOTFOUND,
+        INVALIDEARGUMENT,
+        ERROR
     }
 }

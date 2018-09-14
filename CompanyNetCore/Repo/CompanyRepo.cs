@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using System.Data;
 using Microsoft.AspNetCore.Mvc;
+using CompanyNetCore.Helper;
 
 namespace CompanyNetCore.Repo
 {
@@ -42,10 +43,10 @@ namespace CompanyNetCore.Repo
             catch (Exception)
             {
                 //Logging in Kibana
-                throw new Helper.RepoException(Helper.UpdateResultType.SQLERROR);
+                throw new Helper.RepoException<ReadResultType>(ReadResultType.SQLERROR);
             }
             if (retVal == null)
-                throw new Helper.RepoException(Helper.UpdateResultType.NOTFOUND);
+                throw new Helper.RepoException<ReadResultType>(ReadResultType.NOTFOUND);
             return retVal;
         }
 
@@ -66,10 +67,10 @@ namespace CompanyNetCore.Repo
             catch (Exception)
             {
                 //Logging in Kibana
-                throw new Helper.RepoException(Helper.UpdateResultType.SQLERROR);
+                throw new Helper.RepoException<ReadResultType>(ReadResultType.SQLERROR);
             }
             if (retVal == null)
-                throw new Helper.RepoException(Helper.UpdateResultType.NOTFOUND);
+                throw new Helper.RepoException<ReadResultType>(ReadResultType.NOTFOUND);
             return retVal;
         }
 
@@ -85,7 +86,7 @@ namespace CompanyNetCore.Repo
         {
             Company retVal;
             if(id < -1)
-                throw new Helper.RepoException(Helper.UpdateResultType.INVALIDEARGUMENT);
+                throw new Helper.RepoException<UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
             try
             {
                 using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
@@ -102,10 +103,10 @@ namespace CompanyNetCore.Repo
             catch (Exception)
             {
                 //Logging in Kibana
-                throw new Helper.RepoException(Helper.UpdateResultType.SQLERROR);
+                throw new Helper.RepoException<UpdateResultType>(Helper.UpdateResultType.SQLERROR);
             }
             if(retVal == null)
-                throw new Helper.RepoException(Helper.UpdateResultType.INVALIDEARGUMENT);
+                throw new Helper.RepoException<UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
             return retVal;
         }
 
@@ -113,7 +114,7 @@ namespace CompanyNetCore.Repo
         {
             Company retVal;
             if (Id < -1)
-                throw new Helper.RepoException(Helper.UpdateResultType.INVALIDEARGUMENT);
+                throw new Helper.RepoException<DeleteResultType>(DeleteResultType.INVALIDEARGUMENT);
             try
             {
                 using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
@@ -128,10 +129,10 @@ namespace CompanyNetCore.Repo
             catch (Exception)
             {
                 //Logging in Kibana
-                throw new Helper.RepoException(Helper.UpdateResultType.SQLERROR);
+                throw new Helper.RepoException<DeleteResultType>(DeleteResultType.SQLERROR);
             }
             if (retVal == null)
-                throw new Helper.RepoException(Helper.UpdateResultType.NOTFOUND);
+                throw new Helper.RepoException<DeleteResultType>(DeleteResultType.NOTFOUND);
             return retVal;
         }
     }
