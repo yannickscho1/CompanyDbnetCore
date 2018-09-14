@@ -46,11 +46,11 @@ namespace CompanyNetCore.Repo
                 throw new Helper.RepoException<ReadResultType>(ReadResultType.SQLERROR);
             }
             if (retVal == null)
-                throw new Helper.RepoException<ReadResultType>(ReadResultType.NOTFOUND);
+                throw new RepoException<ReadResultType>(ReadResultType.SQLERROR);
             return retVal;
         }
 
-        public Company ReadById(int Id)
+        public Company ReadById(int id)
         {
             Company retVal;
             try
@@ -58,19 +58,19 @@ namespace CompanyNetCore.Repo
                 using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
                 {
                     conn.Open();
-                    string companySelect = "SELECT Id,Name,Business,Country,City,Street FROM viCompany  WHERE Id = @Id;";
+                    string companySelect = "SELECT Id,Name,Business,Country,City,Street FROM viCompany  WHERE id = @Id;";
                     var param = new DynamicParameters();
-                    param.Add("@Id", Id);
+                    param.Add("@Id", id);
                     retVal= conn.QueryFirstOrDefault<Company>(companySelect, param);
                 }
             }
             catch (Exception)
             {
                 //Logging in Kibana
-                throw new Helper.RepoException<ReadResultType>(ReadResultType.SQLERROR);
+                throw new RepoException<ReadResultType>(ReadResultType.SQLERROR);
             }
-            if (retVal == null)
-                throw new Helper.RepoException<ReadResultType>(ReadResultType.NOTFOUND);
+            //if (retVal == null)
+            //    throw new RepoException<ReadResultType>(ReadResultType.NOTFOUND);
             return retVal;
         }
 
@@ -80,13 +80,17 @@ namespace CompanyNetCore.Repo
         }
         public Company Update(Model.dto.CompanyDto company,int id)
         {
+            if (ReadById(id) == null)
+            {
+                throw new RepoException<UpdateResultType>(UpdateResultType.INVALIDEARGUMENT);
+            }
             return AddOrUpdate(company,id);
         }
         private Company AddOrUpdate(Model.dto.CompanyDto company, int id = -1)
         {
             Company retVal;
-            if(id < -1)
-                throw new Helper.RepoException<UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
+            if (id < -1)
+                throw new RepoException<UpdateResultType>(UpdateResultType.INVALIDEARGUMENT);
             try
             {
                 using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
@@ -103,10 +107,10 @@ namespace CompanyNetCore.Repo
             catch (Exception)
             {
                 //Logging in Kibana
-                throw new Helper.RepoException<UpdateResultType>(Helper.UpdateResultType.SQLERROR);
+                throw new RepoException<UpdateResultType>(UpdateResultType.SQLERROR);
             }
             if(retVal == null)
-                throw new Helper.RepoException<UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
+                throw new RepoException<UpdateResultType>(UpdateResultType.INVALIDEARGUMENT);
             return retVal;
         }
 
@@ -114,7 +118,8 @@ namespace CompanyNetCore.Repo
         {
             Company retVal;
             if (Id < -1)
-                throw new Helper.RepoException<DeleteResultType>(DeleteResultType.INVALIDEARGUMENT);
+                throw new RepoException<DeleteResultType>(DeleteResultType.INVALIDEARGUMENT);
+           
             try
             {
                 using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))

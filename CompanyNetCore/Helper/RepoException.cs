@@ -42,7 +42,6 @@ namespace CompanyNetCore.Helper
 
     public enum UpdateResultType
     {
-        OK,
         SQLERROR,
         NOTFOUND,
         INVALIDEARGUMENT,
@@ -50,15 +49,12 @@ namespace CompanyNetCore.Helper
     }
     public enum ReadResultType
     {
-        OK,
         SQLERROR,
         NOTFOUND,
-        INVALIDEARGUMENT,
         ERROR
     }
     public enum CreateResultType
     {
-        OK,
         SQLERROR,
         NOTFOUND,
         INVALIDEARGUMENT,
@@ -66,7 +62,6 @@ namespace CompanyNetCore.Helper
     }
     public enum DeleteResultType
     {
-        OK,
         SQLERROR,
         NOTFOUND,
         INVALIDEARGUMENT,

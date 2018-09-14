@@ -29,8 +29,6 @@ namespace CompanyNetCore.Controllers
             {
                 switch (ex.Type)
                 {
-                    case ReadResultType.OK:
-                        return StatusCode(StatusCodes.Status200OK);
                     case ReadResultType.SQLERROR:
                         return StatusCode(StatusCodes.Status409Conflict);
                     default:
@@ -52,14 +50,14 @@ namespace CompanyNetCore.Controllers
             {
                 retVal = CR.ReadById(Id);
             }
-            catch (Helper.RepoException<ReadResultType> ex)
+            catch (RepoException<ReadResultType> ex)
             {
                 switch (ex.Type)
                 {
-                    case ReadResultType.OK:
-                        return StatusCode(StatusCodes.Status200OK);
                     case ReadResultType.SQLERROR:
                         return StatusCode(StatusCodes.Status409Conflict);
+                    case ReadResultType.NOTFOUND:
+                        return StatusCode(StatusCodes.Status204NoContent);
                     default:
                         break;
                 }
@@ -83,8 +81,6 @@ namespace CompanyNetCore.Controllers
             {
                 switch (ex.Type)
                 {
-                    case CreateResultType.OK:
-                        return StatusCode(StatusCodes.Status200OK);
                     case CreateResultType.SQLERROR:
                         return StatusCode(StatusCodes.Status409Conflict);
                     case CreateResultType.INVALIDEARGUMENT:
@@ -110,7 +106,7 @@ namespace CompanyNetCore.Controllers
             {
                 retVal = CR.Update(company, id);
             }
-            catch (Helper.RepoException<UpdateResultType> ex)
+            catch (RepoException<UpdateResultType> ex)
             {
                 switch (ex.Type)
                 {
@@ -136,7 +132,7 @@ namespace CompanyNetCore.Controllers
             {
                 retVal = CR.Delete(Id);
             }
-            catch (Helper.RepoException<DeleteResultType> ex)
+            catch (RepoException<DeleteResultType> ex)
             {
                 switch (ex.Type)
                 {
@@ -150,7 +146,7 @@ namespace CompanyNetCore.Controllers
                 return BadRequest();
                 throw;
             }
-            if (retVal == null)
+            if (retVal.Id == null)
                 return StatusCode(StatusCodes.Status204NoContent);
             return StatusCode(StatusCodes.Status200OK, retVal);
 
