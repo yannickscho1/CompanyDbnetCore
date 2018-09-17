@@ -9,21 +9,33 @@ using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using CompanyNetCore.Helper;
+using CompanyNetCore.Interface;
+using CompanyNetCore.Model.dto;
 
 namespace CompanyNetCore.Controllers
 {
     [Route("api/Company")]
     public class CompanyController : ControllerBase
     {
-        CompanyRepo CR = CompanyRepo.GetInstance();
+        private readonly CompanyRepository _companyRepo;
 
+        public CompanyController(CompanyRepository companyRepo)
+        {
+            _companyRepo = companyRepo;
+        }
         [HttpGet]
         public IActionResult Get()
         {
+            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var auth = Authentication.Authenticat(header);
+            if(auth == false)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
             List<Company> retVal;
             try
             {
-                retVal = CR.Read();
+                retVal = _companyRepo.Read();
             }
             catch (RepoException<ReadResultType> ex)
             {
@@ -43,12 +55,12 @@ namespace CompanyNetCore.Controllers
         }
 
         [HttpGet("{Id}")]
-        public IActionResult GetById(int Id)
+        public IActionResult GetById(int id)
         {
-            Company retVal;
+            CompanyDto retVal;
             try
             {
-                retVal = CR.ReadById(Id);
+                retVal = _companyRepo.ReadById(id);
             }
             catch (RepoException<ReadResultType> ex)
             {
@@ -70,12 +82,12 @@ namespace CompanyNetCore.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody]Model.dto.CompanyDto company)
+        public IActionResult Add([FromBody]CompanyDto company)
         {
             Company retVal;
             try
             {
-                retVal = CR.Create(company);
+                retVal = _companyRepo.Create(company);
             }
             catch (Helper.RepoException<CreateResultType> ex)
             {
@@ -99,12 +111,12 @@ namespace CompanyNetCore.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update([FromBody]Model.dto.CompanyDto company, int id)
+        public IActionResult Update([FromBody]CompanyDto company, int id)
         {
             Company retVal;
             try
             {
-                retVal = CR.Update(company, id);
+                retVal = _companyRepo.Update(company, id);
             }
             catch (RepoException<UpdateResultType> ex)
             {
@@ -125,12 +137,12 @@ namespace CompanyNetCore.Controllers
             return StatusCode(StatusCodes.Status200OK, retVal);
         }
         [HttpDelete("{id}")]
-        public IActionResult Delete(int Id)
+        public IActionResult Delete(int id)
         {
             Company retVal;
             try
             {
-                retVal = CR.Delete(Id);
+                retVal = _companyRepo.Delete(id);
             }
             catch (RepoException<DeleteResultType> ex)
             {

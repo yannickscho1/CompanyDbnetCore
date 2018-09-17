@@ -8,13 +8,20 @@ using Dapper;
 using System.Data;
 using Microsoft.AspNetCore.Mvc;
 using CompanyNetCore.Helper;
+using CompanyNetCore.Interface;
+using CompanyNetCore.Model.dto;
 
 namespace CompanyNetCore.Repo
 {
-    public class CompanyRepo
+    public class CompanyRepo : CompanyRepository
     {
+        Interface.IDbContext _dbContext;
         static CompanyRepo _companyRepo;
-        
+        public CompanyRepo(Interface.IDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         public static CompanyRepo GetInstance()
         {
             if (_companyRepo == null)
@@ -33,11 +40,11 @@ namespace CompanyNetCore.Repo
             List<Company> retVal;
             try
             {
-                using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
+                var con = _dbContext.GetCompany();
+                string companySelect = "SELECT Id,Name,Business,Country,City,Street FROM viCompany;";
+                using (con)
                 {
-                    conn.Open();
-                    string companySelect = "SELECT Id,Name,Business,Country,City,Street FROM viCompany;";
-                    retVal = conn.Query<Company>(companySelect).ToList();
+                    retVal = con.Query<Company>(companySelect).ToList();
                 }
             }
             catch (Exception)
@@ -55,13 +62,13 @@ namespace CompanyNetCore.Repo
             Company retVal;
             try
             {
-                using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
+                var con = _dbContext.GetCompany();
+                string companySelect = "SELECT Id,Name,Business,Country,City,Street FROM viCompany  WHERE id = @Id;";
+                var param = new DynamicParameters();
+                param.Add("@Id", id);
+                using (con)
                 {
-                    conn.Open();
-                    string companySelect = "SELECT Id,Name,Business,Country,City,Street FROM viCompany  WHERE id = @Id;";
-                    var param = new DynamicParameters();
-                    param.Add("@Id", id);
-                    retVal= conn.QueryFirstOrDefault<Company>(companySelect, param);
+                    retVal = con.QueryFirstOrDefault<Company>(companySelect, param);
                 }
             }
             catch (Exception)
@@ -74,11 +81,11 @@ namespace CompanyNetCore.Repo
             return retVal;
         }
 
-        public Company Create(Model.dto.CompanyDto company)
+        public Company Create(CompanyDto company)
         {
             return AddOrUpdate(company);
         }
-        public Company Update(Model.dto.CompanyDto company,int id)
+        public Company Update(CompanyDto company,int id)
         {
             if (ReadById(id) == null)
             {
@@ -86,22 +93,22 @@ namespace CompanyNetCore.Repo
             }
             return AddOrUpdate(company,id);
         }
-        private Company AddOrUpdate(Model.dto.CompanyDto company, int id = -1)
+        private Company AddOrUpdate(CompanyDto company, int id = -1)
         {
             Company retVal;
             if (id < -1)
                 throw new RepoException<UpdateResultType>(UpdateResultType.INVALIDEARGUMENT);
             try
             {
-                using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
+                var con = _dbContext.GetCompany();
+                string companySelect = "spCompany";
+                var param = new DynamicParameters();
+                param.Add("@Name", company.Name);
+                param.Add("@Business", company.Business);
+                param.Add("@Id", id);
+                using (con)
                 {
-                    conn.Open();
-                    string companySelect = "spCompany";
-                    var param = new DynamicParameters();
-                    param.Add("@Name", company.Name);
-                    param.Add("@Business", company.Business);
-                    param.Add("@Id", id);
-                    retVal = conn.QueryFirstOrDefault<Company>(companySelect, param, null, null, CommandType.StoredProcedure);
+                    retVal = con.QueryFirstOrDefault<Company>(companySelect, param, null, null, CommandType.StoredProcedure);
                 }
             }
             catch (Exception)
@@ -122,13 +129,13 @@ namespace CompanyNetCore.Repo
            
             try
             {
-                using (SqlConnection conn = new SqlConnection(Properties.Resources.conString))
+                var con = _dbContext.GetCompany();
+                string companySelect = "spDeleteCompany";
+                var param = new DynamicParameters();
+                param.Add("@Id", Id);
+                using (con)
                 {
-                    conn.Open();
-                    string companySelect = "spDeleteCompany";
-                    var param = new DynamicParameters();
-                    param.Add("@Id", Id);
-                    retVal = conn.QueryFirstOrDefault<Company>(companySelect, param, null, null, CommandType.StoredProcedure);
+                    retVal = con.QueryFirstOrDefault<Company>(companySelect, param, null, null, CommandType.StoredProcedure);
                 }
             }
             catch (Exception)
