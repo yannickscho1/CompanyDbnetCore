@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace CompanyNetCore.Helper
 {
@@ -14,6 +12,10 @@ namespace CompanyNetCore.Helper
         private static string Converting(string encodedString)
         {
             var header = encodedString.Split('.')[1];
+            if (header.Length % 4 == 3)
+                header += "=";
+            if (header.Length % 4 == 2)
+                header += "==";
             byte[] data = Convert.FromBase64String(header);
             string decodedString = Encoding.UTF8.GetString(data);
             return decodedString;
@@ -24,9 +26,9 @@ namespace CompanyNetCore.Helper
             {
                 var authString = Converting(Auth);
                 var data = (JObject)JsonConvert.DeserializeObject(authString);
-                var firstName = data.SelectToken("FirstName").ToString();
-                var siteId = data.SelectToken("SiteID").ToString();
-                if (firstName == "Yannick" && siteId == "60038-22141")
+                var personId = data.SelectToken("PersonID").ToString();
+                var name = data.SelectToken("LastName").ToString();
+                if (personId == "130-93347" && name == "Scho")
                 {
                     return true;
                 }
@@ -34,7 +36,6 @@ namespace CompanyNetCore.Helper
             }
             catch (Exception)
             {
-
                 return false;
             }
         }
