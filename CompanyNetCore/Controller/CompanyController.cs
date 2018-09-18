@@ -28,7 +28,7 @@ namespace CompanyNetCore.Controllers
         {
             var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
             var auth = Authentication.Authenticat(header);
-            if(auth == false)
+            if (auth == false)
             {
                 return StatusCode(StatusCodes.Status401Unauthorized);
             }
@@ -57,6 +57,12 @@ namespace CompanyNetCore.Controllers
         [HttpGet("{Id}")]
         public IActionResult GetById(int id)
         {
+            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var auth = Authentication.Authenticat(header);
+            if (auth == false)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
             CompanyDto retVal;
             try
             {
@@ -84,6 +90,12 @@ namespace CompanyNetCore.Controllers
         [HttpPost]
         public IActionResult Add([FromBody]CompanyDto company)
         {
+            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var auth = Authentication.Authenticat(header);
+            if (auth == false)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
             Company retVal;
             try
             {
@@ -113,6 +125,12 @@ namespace CompanyNetCore.Controllers
         [HttpPut("{id}")]
         public IActionResult Update([FromBody]CompanyDto company, int id)
         {
+            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var auth = Authentication.Authenticat(header);
+            if (auth == false)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
             Company retVal;
             try
             {
@@ -139,6 +157,12 @@ namespace CompanyNetCore.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var auth = Authentication.Authenticat(header);
+            if (auth == false)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
             Company retVal;
             try
             {

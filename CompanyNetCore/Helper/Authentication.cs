@@ -1,31 +1,42 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace CompanyNetCore.Helper
 {
     public static class Authentication
     {
-        private static string username = "hi";
-        private static string password = "ho";
         private static string Converting(string encodedString)
         {
-            byte[] data = Convert.FromBase64String(encodedString);
+            var header = encodedString.Split('.')[1];
+            byte[] data = Convert.FromBase64String(header);
             string decodedString = Encoding.UTF8.GetString(data);
             return decodedString;
         }
         public static bool Authenticat(string Auth)
         {
-            var authString = Converting(Auth);
-            var user = authString.Split(':')[0];
-            var pw = authString.Split(':')[1];
-            if (user == username && pw == password)
+            try
             {
-                return true;
+                var authString = Converting(Auth);
+                var data = (JObject)JsonConvert.DeserializeObject(authString);
+                var firstName = data.SelectToken("FirstName").ToString();
+                var siteId = data.SelectToken("SiteID").ToString();
+                if (firstName == "Yannick" && siteId == "60038-22141")
+                {
+                    return true;
+                }
+                return false;
             }
-            else return false;
+            catch (Exception)
+            {
+
+                return false;
+            }
         }
     }
 }
