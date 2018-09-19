@@ -17,7 +17,7 @@ namespace CompanyNetCore.Repo
     {
         Interface.IDbContext _dbContext;
         static CompanyRepo _companyRepo;
-        public CompanyRepo(Interface.IDbContext dbContext)
+        public CompanyRepo(IDbContext dbContext)
         {
             _dbContext = dbContext;
         }

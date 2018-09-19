@@ -11,6 +11,11 @@ using Microsoft.AspNetCore.Http;
 using CompanyNetCore.Helper;
 using CompanyNetCore.Interface;
 using CompanyNetCore.Model.dto;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using TobitWebApiExtensions.Extensions;
+using TobitLogger.Core;
+using TobitLogger.Core.Models;
 
 namespace CompanyNetCore.Controllers
 {
@@ -18,20 +23,16 @@ namespace CompanyNetCore.Controllers
     public class CompanyController : ControllerBase
     {
         private readonly CompanyRepository _companyRepo;
+        private readonly ILogger<CompanyController> _logger;
 
-        public CompanyController(CompanyRepository companyRepo)
+        public CompanyController(CompanyRepository companyRepo, ILoggerFactory logger)
         {
             _companyRepo = companyRepo;
+            _logger = logger.CreateLogger<CompanyController>();
         }
         [HttpGet]
         public IActionResult Get()
         {
-            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            var auth = Authentication.Authenticat(header);
-            if (auth == false)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
             List<Company> retVal;
             try
             {
@@ -42,6 +43,7 @@ namespace CompanyNetCore.Controllers
                 switch (ex.Type)
                 {
                     case ReadResultType.SQLERROR:
+                        _logger.Error(new ExceptionData(ex));
                         return StatusCode(StatusCodes.Status409Conflict);
                     default:
                         break;
@@ -49,20 +51,16 @@ namespace CompanyNetCore.Controllers
                 return BadRequest();
                 throw;
             }
+
             if (retVal == null)
                 return StatusCode(StatusCodes.Status204NoContent);
             return StatusCode(StatusCodes.Status200OK, retVal);
         }
+  
 
         [HttpGet("{Id}")]
         public IActionResult GetById(int id)
         {
-            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            var auth = Authentication.Authenticat(header);
-            if (auth == false)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
             CompanyDto retVal;
             try
             {
@@ -73,9 +71,8 @@ namespace CompanyNetCore.Controllers
                 switch (ex.Type)
                 {
                     case ReadResultType.SQLERROR:
+                        _logger.Error(new ExceptionData(ex));
                         return StatusCode(StatusCodes.Status409Conflict);
-                    case ReadResultType.NOTFOUND:
-                        return StatusCode(StatusCodes.Status204NoContent);
                     default:
                         break;
                 }
@@ -87,105 +84,116 @@ namespace CompanyNetCore.Controllers
             return StatusCode(StatusCodes.Status200OK, retVal);
         }
 
+        [Authorize(Roles = "1")]
         [HttpPost]
         public IActionResult Add([FromBody]CompanyDto company)
         {
-            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            var auth = Authentication.Authenticat(header);
-            if (auth == false)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
             Company retVal;
-            try
+            var _user = HttpContext.GetTokenPayload<Auth.Models.LocationUserTokenPayload>();
+            var groups = HttpContext.GetUacGroups();
+            if (_user.SiteId == "77890-29567")
             {
-                retVal = _companyRepo.Create(company);
-            }
-            catch (Helper.RepoException<CreateResultType> ex)
-            {
-                switch (ex.Type)
+                try
                 {
-                    case CreateResultType.SQLERROR:
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    case CreateResultType.INVALIDEARGUMENT:
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    case CreateResultType.ERROR:
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    default:
-                        break;
+                    retVal = _companyRepo.Create(company);
                 }
-                return BadRequest();
-                throw;
+                catch (Helper.RepoException<CreateResultType> ex)
+                {
+                    switch (ex.Type)
+                    {
+                        case CreateResultType.SQLERROR:
+                            _logger.Error(new ExceptionData(ex));
+                            return StatusCode(StatusCodes.Status409Conflict);
+                        case CreateResultType.INVALIDEARGUMENT:
+                            _logger.Error(new ExceptionData(ex));
+                            return StatusCode(StatusCodes.Status409Conflict);
+                        case CreateResultType.ERROR:
+                            _logger.Error(new ExceptionData(ex));
+                            return StatusCode(StatusCodes.Status409Conflict);
+                        default:
+                            break;
+                    }
+                    return BadRequest();
+                    throw;
+                }
+                if (retVal == null)
+                    return StatusCode(StatusCodes.Status204NoContent);
+                return StatusCode(StatusCodes.Status200OK, retVal);
             }
-            if (retVal == null)
-                return StatusCode(StatusCodes.Status204NoContent);
-            return StatusCode(StatusCodes.Status200OK, retVal);
+            return StatusCode(StatusCodes.Status204NoContent);
         }
 
+        [Authorize(Roles = "1")]
         [HttpPut("{id}")]
         public IActionResult Update([FromBody]CompanyDto company, int id)
         {
-            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            var auth = Authentication.Authenticat(header);
-            if (auth == false)
+            var _user = HttpContext.GetTokenPayload<Auth.Models.LocationUserTokenPayload>();
+            var groups = HttpContext.GetUacGroups();
+            if (_user.SiteId == "77890-29567")
             {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
-            Company retVal;
-            try
-            {
-                retVal = _companyRepo.Update(company, id);
-            }
-            catch (RepoException<UpdateResultType> ex)
-            {
-                switch (ex.Type)
+                Company retVal;
+                try
                 {
-                    case Helper.UpdateResultType.SQLERROR:
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    case Helper.UpdateResultType.ERROR:
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    default:
-                        break;
+                    retVal = _companyRepo.Update(company, id);
                 }
-                return BadRequest();
-                throw;
+                catch (RepoException<UpdateResultType> ex)
+                {
+                    switch (ex.Type)
+                    {
+                        case UpdateResultType.SQLERROR:
+                            _logger.Error(new ExceptionData(ex));
+                            return StatusCode(StatusCodes.Status409Conflict);
+                        case UpdateResultType.ERROR:
+                            _logger.Error(new ExceptionData(ex));
+                            return StatusCode(StatusCodes.Status409Conflict);
+                        default:
+                            break;
+                    }
+                    return BadRequest();
+                    throw;
+                }
+                if (retVal == null)
+                    return StatusCode(StatusCodes.Status204NoContent);
+                return StatusCode(StatusCodes.Status200OK, retVal);
             }
-            if (retVal == null)
-                return StatusCode(StatusCodes.Status204NoContent);
-            return StatusCode(StatusCodes.Status200OK, retVal);
+            return StatusCode(StatusCodes.Status204NoContent);
         }
+
+        [Authorize(Roles = "1")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var header = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            var auth = Authentication.Authenticat(header);
-            if (auth == false)
+            var _user = HttpContext.GetTokenPayload<Auth.Models.LocationUserTokenPayload>();
+            var groups = HttpContext.GetUacGroups();
+            if (_user.SiteId == "77890-29567")
             {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
-            Company retVal;
-            try
-            {
-                retVal = _companyRepo.Delete(id);
-            }
-            catch (RepoException<DeleteResultType> ex)
-            {
-                switch (ex.Type)
+                Company retVal;
+                try
                 {
-                    case DeleteResultType.SQLERROR:
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    case DeleteResultType.ERROR:
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    default:
-                        break;
+                    retVal = _companyRepo.Delete(id);
                 }
-                return BadRequest();
-                throw;
-            }
-            if (retVal.Id == null)
-                return StatusCode(StatusCodes.Status204NoContent);
-            return StatusCode(StatusCodes.Status200OK, retVal);
+                catch (RepoException<DeleteResultType> ex)
+                {
+                    switch (ex.Type)
+                    {
+                        case DeleteResultType.SQLERROR:
+                            _logger.Error("SQL Error", new ExceptionData(ex));
+                            return StatusCode(StatusCodes.Status409Conflict);
+                        case DeleteResultType.ERROR:
+                            _logger.Error("Error", new ExceptionData(ex));
+                            return StatusCode(StatusCodes.Status409Conflict);
+                        default:
+                            break;
+                    }
+                    return BadRequest();
+                    throw;
+                }
+                if (retVal.Id == null)
+                    return StatusCode(StatusCodes.Status204NoContent);
+                return StatusCode(StatusCodes.Status200OK, retVal);
 
+            }
+            return StatusCode(StatusCodes.Status204NoContent);
         }
     }
 }
