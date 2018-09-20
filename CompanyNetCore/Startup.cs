@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CompanyNetCore.Helper;
 using CompanyNetCore.Interface;
 using CompanyNetCore.Model;
 using CompanyNetCore.Repo;
@@ -36,8 +37,10 @@ namespace CompanyNetCore
             services.AddSingleton<ILogContextProvider, RequestGuidContextProvider>();
 
             services.Configure<DbSettings>(Configuration.GetSection("DbSettings"));
+            services.Configure<ChaynsApiInfo>(Configuration.GetSection("ChaynsBackendApi"));
             services.AddSingleton<IDbContext, Helper.DbContext>();
             services.AddScoped<CompanyRepository, CompanyRepo>();
+            services.AddScoped<IMessageHelper, MessageHelper>();
 
             services.AddChaynsToken();
         }

@@ -97,7 +97,7 @@ namespace CompanyNetCore.Controllers
                 {
                     retVal = _companyRepo.Create(company);
                 }
-                catch (Helper.RepoException<CreateResultType> ex)
+                catch (RepoException<CreateResultType> ex)
                 {
                     switch (ex.Type)
                     {
@@ -120,7 +120,7 @@ namespace CompanyNetCore.Controllers
                     return StatusCode(StatusCodes.Status204NoContent);
                 return StatusCode(StatusCodes.Status200OK, retVal);
             }
-            return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status403Forbidden);
         }
 
         [Authorize(Roles = "1")]
@@ -156,7 +156,7 @@ namespace CompanyNetCore.Controllers
                     return StatusCode(StatusCodes.Status204NoContent);
                 return StatusCode(StatusCodes.Status200OK, retVal);
             }
-            return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status403Forbidden);
         }
 
         [Authorize(Roles = "1")]
@@ -190,10 +190,10 @@ namespace CompanyNetCore.Controllers
                 }
                 if (retVal.Id == null)
                     return StatusCode(StatusCodes.Status204NoContent);
-                return StatusCode(StatusCodes.Status200OK, retVal);
+                return StatusCode(StatusCodes.Status200OK, "Der Eintrag mit der Id "+retVal.Id+" wurde erfolgreich gelöscht.");
 
             }
-            return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status403Forbidden);
         }
     }
 }

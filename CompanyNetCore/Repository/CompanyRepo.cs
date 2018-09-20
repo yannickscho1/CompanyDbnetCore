@@ -10,16 +10,19 @@ using Microsoft.AspNetCore.Mvc;
 using CompanyNetCore.Helper;
 using CompanyNetCore.Interface;
 using CompanyNetCore.Model.dto;
+using Microsoft.AspNetCore.Http;
 
 namespace CompanyNetCore.Repo
 {
     public class CompanyRepo : CompanyRepository
     {
-        Interface.IDbContext _dbContext;
+        IDbContext _dbContext;
         static CompanyRepo _companyRepo;
-        public CompanyRepo(IDbContext dbContext)
+        IMessageHelper _messageHelper;
+        public CompanyRepo(IDbContext dbContext, IMessageHelper messageHelper)
         {
             _dbContext = dbContext;
+            _messageHelper = messageHelper;
         }
 
         public static CompanyRepo GetInstance()
@@ -46,11 +49,15 @@ namespace CompanyNetCore.Repo
                 {
                     retVal = con.Query<Company>(companySelect).ToList();
                 }
+                //_messageHelper.SendIntercom($"Name der ersten Firma: {retVal[0].Name}");
+                _messageHelper.getUacGroups(1);
+                _messageHelper.getUacMembers(1);
+                _messageHelper.getUacGroupsOfMember(1988580);
+
             }
             catch (Exception)
             {
-                //Logging in Kibana
-                throw new Helper.RepoException<ReadResultType>(ReadResultType.SQLERROR);
+                throw new RepoException<ReadResultType>(ReadResultType.SQLERROR);
             }
             if (retVal == null)
                 throw new RepoException<ReadResultType>(ReadResultType.SQLERROR);
@@ -76,8 +83,6 @@ namespace CompanyNetCore.Repo
                 //Logging in Kibana
                 throw new RepoException<ReadResultType>(ReadResultType.SQLERROR);
             }
-            //if (retVal == null)
-            //    throw new RepoException<ReadResultType>(ReadResultType.NOTFOUND);
             return retVal;
         }
 
